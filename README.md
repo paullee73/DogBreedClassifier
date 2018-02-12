@@ -1,2 +1,2 @@
 # DogBreedDeepLearning
-World-class algorithm to identify various dog breeds
+World-class algorithm to identify various dog breeds, using Fast.ai library.
