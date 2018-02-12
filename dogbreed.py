@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[4]:
 
 
 get_ipython().run_line_magic('reload_ext', 'autoreload')
@@ -9,7 +9,7 @@ get_ipython().run_line_magic('autoreload', '2')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[2]:
+# In[5]:
 
 
 from fastai.imports import *
@@ -22,7 +22,7 @@ from fastai.sgdr import *
 from fastai.plots import *
 
 
-# In[3]:
+# In[6]:
 
 
 PATH = "data/dogbreeds/"
@@ -31,7 +31,7 @@ arch = resnext101_64
 bs = 58
 
 
-# In[4]:
+# In[7]:
 
 
 label_csv = f'{PATH}labels.csv'
@@ -41,32 +41,32 @@ n = len(list(open(label_csv)))-1
 val_idxs = get_cv_idxs(n)
 
 
-# In[5]:
+# In[8]:
 
 
 get_ipython().system('ls {PATH}')
 
 
-# In[6]:
+# In[9]:
 
 
 #read csv file
 label_df = pd.read_csv(label_csv)
 
 
-# In[7]:
+# In[10]:
 
 
 label_df.head()
 
 
-# In[8]:
+# In[11]:
 
 
 label_df.pivot_table(index = 'breed', aggfunc=len).sort_values('id', ascending=False)
 
 
-# In[9]:
+# In[12]:
 
 
 #alows for image transformations with sides on and zooms (by up to 1.1 times) to reduce sound
@@ -75,86 +75,86 @@ data = ImageClassifierData.from_csv(PATH, 'train', f'{PATH}labels.csv', test_nam
                                    val_idxs=val_idxs, suffix='.jpg', tfms=tfms, bs=bs)
 
 
-# In[10]:
+# In[13]:
 
 
 fn = PATH+data.trn_ds.fnames[0]; fn
 
 
-# In[11]:
+# In[14]:
 
 
 img = PIL.Image.open(fn); img
 
 
-# In[12]:
+# In[15]:
 
 
 img.size
 
 
-# In[20]:
+# In[16]:
 
 
 #create dictionary that maps filenames to size
 size_d = {k: PIL.Image.open(PATH+k).size for k in data.trn_ds.fnames}
 
 
-# In[21]:
+# In[17]:
 
 
 row_sz, col_sz = list(zip(*size_d.values()))
 
 
-# In[22]:
+# In[18]:
 
 
 row_sz=np.array(row_sz); col_sz = np.array(col_sz)
 
 
-# In[23]:
+# In[19]:
 
 
 row_sz[:5]
 
 
-# In[24]:
+# In[20]:
 
 
 plt.hist(row_sz)
 
 
-# In[28]:
+# In[21]:
 
 
 plt.hist(row_sz[row_sz<1000])
 
 
-# In[29]:
+# In[22]:
 
 
 plt.hist(col_sz);
 
 
-# In[30]:
+# In[23]:
 
 
 plt.hist(col_sz[col_sz<1000])
 
 
-# In[31]:
+# In[24]:
 
 
 len(data.trn_ds), len(data.test_ds)
 
 
-# In[32]:
+# In[25]:
 
 
 len(data.classes), data.classes[:5]
 
 
-# In[33]:
+# In[26]:
 
 
 def get_data(sz,bx):
@@ -164,7 +164,7 @@ def get_data(sz,bx):
        return data if sz>300 else data.resize(340, 'tmp')
 
 
-# In[34]:
+# In[27]:
 
 
 data = get_data(sz, bs)
@@ -173,5 +173,49 @@ data = get_data(sz, bs)
 # In[35]:
 
 
-learn = ConvLearner.pretrained(arch, data, precompute = True)
+arch=resnet50
+learn = ConvLearner.pretrained(arch, data, precompute=True)
+
+
+# In[36]:
+
+
+learn.fit(1e-2, 5)
+
+
+# In[37]:
+
+
+from sklearn import metrics
+
+
+# In[38]:
+
+
+data = get_data(sz, bs)
+
+
+# In[43]:
+
+
+arch = resnet34
+learn = ConvLearner.pretrained(arch, data, precompute = True, ps=0.5)
+
+
+# In[44]:
+
+
+learn.precompute = False
+
+
+# In[45]:
+
+
+learn.fit(1e-2, 5, cycle_len=1)
+
+
+# In[ ]:
+
+
+learn
 
