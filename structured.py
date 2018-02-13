@@ -1,3 +1,4 @@
+#present visualizations of data
 from .imports import *
 
 from sklearn_pandas import DataFrameMapper
