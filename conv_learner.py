@@ -1,3 +1,4 @@
+#convolutional learner
 from .core import *
 from .layers import *
 from .learner import *
