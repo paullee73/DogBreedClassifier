@@ -170,52 +170,171 @@ def get_data(sz,bx):
 data = get_data(sz, bs)
 
 
-# In[35]:
+# In[28]:
 
 
 arch=resnet50
 learn = ConvLearner.pretrained(arch, data, precompute=True)
 
 
-# In[36]:
+# In[29]:
 
 
 learn.fit(1e-2, 5)
 
 
-# In[37]:
+# In[30]:
 
 
 from sklearn import metrics
 
 
-# In[38]:
+# In[31]:
 
 
 data = get_data(sz, bs)
 
 
-# In[43]:
+# In[32]:
 
 
 arch = resnet34
 learn = ConvLearner.pretrained(arch, data, precompute = True, ps=0.5)
 
 
-# In[44]:
+# In[33]:
 
 
 learn.precompute = False
 
 
-# In[45]:
+# In[34]:
 
 
 learn.fit(1e-2, 5, cycle_len=1)
 
 
+# In[50]:
+
+
+learn.save('224_pre')
+
+
+# In[51]:
+
+
+learn.load('224_pre')
+
+
 # In[ ]:
 
 
-learn
+learn.set_data(get_data(299,bs))
+learn.freeze()
 
+
+# In[58]:
+
+
+learn.fit(1e-2, 1, cycle_len=1)
+
+
+# In[59]:
+
+
+learn.fit(1e-2, 3, cycle_len=1, cycle_mult=2)
+
+
+# In[60]:
+
+
+log_preds,y = learn.TTA()
+probs = np.exp(log_preds)
+accuracy(log_preds,y), metrics.log_loss(y, probs)
+
+
+# In[61]:
+
+
+learn.save('299_pre')
+
+
+# In[62]:
+
+
+learn.load('299_pre')
+
+
+# In[63]:
+
+
+learn.fit(1e-2, 1, cycle_len=2)
+
+
+# In[64]:
+
+
+learn.save('299_pre')
+
+
+# In[66]:
+
+
+log_preds,y = learn.TTA()
+probs = np.exp(log_preds)
+accuracy(log_preds,y), metrics.log_loss(y, probs)
+
+
+# In[67]:
+
+
+data.classes
+
+
+# In[68]:
+
+
+data.test_ds.fnames
+
+
+# In[69]:
+
+
+log_preds,y = learn.TTA(is_test=True)
+probs = np.exp(log_preds)
+
+
+# In[70]:
+
+
+probs.shape
+
+
+# In[74]:
+
+
+df = pd.DataFrame(probs)
+df.columns = data.classes
+
+
+# In[75]:
+
+
+df.insert(0, 'id', [o[5:-4]] for o in data.test_ds.fnames)
+
+
+# In[76]:
+
+
+df.head()
+
+
+# In[ ]:
+
+
+SUBM = f'{PATH}subm/'
+os.makedirs(SUBM, exist_ok=True)
+df.to_csv(f'{SUBM}subm.gz', compression = 'gzip', index = False)
+
+
+# FileLink(f'{SUBM}subm.gz')
