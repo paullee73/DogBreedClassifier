@@ -1,3 +1,4 @@
+#create tensors of data
 import torch, queue
 from torch.utils.data.sampler import SequentialSampler, RandomSampler, BatchSampler
 from .imports import *
